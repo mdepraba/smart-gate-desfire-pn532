@@ -44,6 +44,6 @@ const byte CARD_FILE_ID = 0;
 // The key version can always be obtained without authentication.
 // You can theoretically have multiple master keys and by obtaining the version you know which one to use for authentication.
 // This value must be between 1 and 255 (NOT zero!)
-const byte CARD_KEY_VERSION = 0x10;
+const byte CARD_KEY_VERSION = 0x00;
 
 #endif
