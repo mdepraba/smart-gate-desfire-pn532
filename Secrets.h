@@ -21,7 +21,7 @@ const byte SECRET_PICC_MASTER_KEY[24] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x
 
 // This 3K3DES key is used to derive a 16 byte application master key from the UID of the card and the user name.
 // The purpose is that each card will have it's unique application master key that can be calculated from known values.
-const byte SECRET_APPLICATION_KEY[24] = { 0x81, 0xDF, 0x6A, 0xD9, 0x89, 0xE9, 0xA2, 0xD1, 0xC5, 0xB3, 0xE3, 0x9D, 0xE9, 0x60, 0x43, 0xE3, 0x5B, 0x60, 0x85, 0x8B, 0x99, 0xD8, 0xD3, 0x5B };
+const byte SECRET_APPLICATION_KEY[24] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
 // This 3K3DES key is used to derive the 16 byte store value from the UID of the card and the user name.
 // This value is stored in a standard data file on the card.
@@ -32,11 +32,12 @@ const byte SECRET_STORE_VALUE_KEY[24] = { 0x1E, 0x5D, 0x78, 0x57, 0x68, 0xFC, 0x
 
 // The ID of the application to be created
 // This value must be between 0x000001 and 0xFFFFFF (NOT zero!)
-const uint32_t CARD_APPLICATION_ID = 0xAA401F;
+// const uint32_t CARD_APPLICATION_ID = 0xAA401F;
+const uint32_t CARD_APPLICATION_ID = 0xA1A2A3;
 
 // The ID of the file to be created in the above application
 // This value must be between 0 and 31
-const byte CARD_FILE_ID = 0;
+const byte CARD_FILE_ID = 2;
 
 // This 8 bit version number is uploaded to the card together with the key itself.
 // This version is irrelevant for encryption. 

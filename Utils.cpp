@@ -212,3 +212,32 @@ int Utils::strnicmp(const char* str1, const char* str2, uint32_t u32_MaxCount)
     return 0;
 }
 // -----------------------------------------------------------------------------------------------
+
+String Utils::HexBufToAscii(const uint8_t *buf, size_t len) {
+    // Hentikan bila menemukan 0x00, hanya ambil printable (space..~) + \t \n
+    String s;
+    for (size_t i = 0; i < len; ++i) {
+        uint8_t b = buf[i];
+        if (b == 0x00) break;
+        if (b == '\n' || b == '\t' || (b >= 0x20 && b <= 0x7E)) {
+            s += (char)b;
+        }
+        // jika non-printable lain -> abaikan
+    }
+    return s;
+  }
+  
+bool Utils::HexBufToAsciiBuf(const uint8_t *buf, size_t len, char *out, size_t outLen) {
+    if (outLen == 0) return false;
+    size_t pos = 0;
+    for (size_t i = 0; i < len && pos + 1 < outLen; ++i) { // +1 untuk null term
+        uint8_t b = buf[i];
+        if (b == 0x00) break;
+        if (b == '\n' || b == '\t' || (b >= 0x20 && b <= 0x7E)) {
+            out[pos++] = (char)b;
+        }
+        // else ignore
+    }
+    out[pos] = '\0';
+    return true;
+}

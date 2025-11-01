@@ -190,7 +190,7 @@ public:
     static inline void BlinkLed(byte u8_Pin, byte u8_Status)
     {
         digitalWrite(u8_Pin, u8_Status);
-        delay(200);
+        delay(500);
         digitalWrite(u8_Pin, !u8_Status);
     }
 
@@ -219,6 +219,9 @@ public:
     static uint32_t CalcCrc32(const byte* u8_Data1, int s32_Length1, const byte* u8_Data2=NULL, int s32_Length2=0);
     static int      strnicmp(const char* str1, const char* str2, uint32_t u32_MaxCount);
     static int      stricmp (const char* str1, const char* str2);
+
+    static String   HexBufToAscii(const uint8_t *buf, size_t len);             // Mengembalikan Arduino String
+    static bool     HexBufToAsciiBuf(const uint8_t *buf, size_t len, char *out, size_t outLen);
 
 private:
     static uint32_t CalcCrc32(const byte* u8_Data, int s32_Length, uint32_t u32_Crc);
