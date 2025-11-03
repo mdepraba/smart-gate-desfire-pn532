@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include "PN532.h"
 #include "Desfire.h"
 #include "Secrets.h"
@@ -29,67 +30,6 @@ struct kCard
 uint64_t   gu64_LastID       = 0; 
 bool gb_InitSuccess = false;
 
-
-void setup() {
-  Serial.begin(115200);
-  delay(1000);
-  Serial.println("\n=== ESP32 + PN532 (DESFire Reader) ===");
-
-  pinMode(LED_PIN, OUTPUT);
-  digitalWrite(LED_PIN, LOW);
-
-  gi_PN532.InitHardwareSPI(PN532_SS, PN532_RST);
-  InitReader();
-
-
-  // Set PICC Master Key (default 16-byte 0x00..00)
-  gi_PiccMasterKey.SetKeyData(SECRET_PICC_MASTER_KEY, sizeof(SECRET_PICC_MASTER_KEY), CARD_KEY_VERSION);
-}
-
-void loop() {
-  if (!gb_InitSuccess) {
-    InitReader();
-    return;
-  }
-
-  byte uid[8];
-  byte uidLength;
-  eCardType cardType;
-
-  // wait for a card to enter the field
-  if (!gi_PN532.ReadPassiveTargetID(uid, &uidLength, &cardType)) return;
-  if (uidLength == 0) return;     // no card found
-
-  Serial.print("\n[+] Card detected, UID: ");
-  for (int i = 0; i < uidLength; i++) Serial.printf("%02X ", uid[i]);
-  Serial.println();
-
-  // Authenticate PICC master key
-  if (AuthenticateDesfire(&gi_PiccMasterKey)) {
-    Serial.println("[OK] Authentication successful ✅");
-    Utils::BlinkLed(LED_PIN, HIGH);
-  } else {
-    Serial.println("[FAIL] Authentication failed ❌");
-    BlinkError();
-  }
-
-
-  gi_PN532.SelectApplication(CARD_APPLICATION_ID);
-  ReadFileWithAutoAuth(CARD_APPLICATION_ID, 4, 32);
-  // AES appKey;
-  // appKey.SetKeyData(SECRET_APPLICATION_KEY, sizeof(SECRET_APPLICATION_KEY), CARD_KEY_VERSION);
-  // if (!AuthenticateApplication(&appKey)) return;
-
-  // if (!AuthenticateKey3()) return;
-  // ReadDesfireFile(2, 32);
-  // DumpFileSettings(2);
-  // DumpFileSettings(3);
-  // ReadDesfireFile(CARD_FILE_ID, 16);
-  // ReadDesfireFile(3, 32);
-
-  delay(500); // delay antar pembacaan
-  digitalWrite(LED_PIN, LOW);
-}
 
 // ======================================================
 // Authenticate PICC master key (application 0x000000, key 0)
@@ -274,3 +214,65 @@ bool AuthenticateWithIndex(uint8_t keyIndex, const uint8_t* keyData, size_t keyL
   return false;
 }
   
+
+
+void setup() {
+  Serial.begin(115200);
+  delay(1000);
+  Serial.println("\n=== ESP32 + PN532 (DESFire Reader) ===");
+
+  pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, LOW);
+
+  gi_PN532.InitHardwareSPI(PN532_SS, PN532_RST);
+  InitReader();
+
+
+  // Set PICC Master Key (default 16-byte 0x00..00)
+  gi_PiccMasterKey.SetKeyData(SECRET_PICC_MASTER_KEY, sizeof(SECRET_PICC_MASTER_KEY), CARD_KEY_VERSION);
+}
+
+void loop() {
+  if (!gb_InitSuccess) {
+    InitReader();
+    return;
+  }
+
+  byte uid[8];
+  byte uidLength;
+  eCardType cardType;
+
+  // wait for a card to enter the field
+  if (!gi_PN532.ReadPassiveTargetID(uid, &uidLength, &cardType)) return;
+  if (uidLength == 0) return;     // no card found
+
+  Serial.print("\n[+] Card detected, UID: ");
+  for (int i = 0; i < uidLength; i++) Serial.printf("%02X ", uid[i]);
+  Serial.println();
+
+  // Authenticate PICC master key
+  if (AuthenticateDesfire(&gi_PiccMasterKey)) {
+    Serial.println("[OK] Authentication successful ✅");
+    Utils::BlinkLed(LED_PIN, HIGH);
+  } else {
+    Serial.println("[FAIL] Authentication failed ❌");
+    BlinkError();
+  }
+
+
+  gi_PN532.SelectApplication(CARD_APPLICATION_ID);
+  ReadFileWithAutoAuth(CARD_APPLICATION_ID, 4, 32);
+  // AES appKey;
+  // appKey.SetKeyData(SECRET_APPLICATION_KEY, sizeof(SECRET_APPLICATION_KEY), CARD_KEY_VERSION);
+  // if (!AuthenticateApplication(&appKey)) return;
+
+  // if (!AuthenticateKey3()) return;
+  // ReadDesfireFile(2, 32);
+  // DumpFileSettings(2);
+  // DumpFileSettings(3);
+  // ReadDesfireFile(CARD_FILE_ID, 16);
+  // ReadDesfireFile(3, 32);
+
+  delay(500); // delay antar pembacaan
+  digitalWrite(LED_PIN, LOW);
+}
