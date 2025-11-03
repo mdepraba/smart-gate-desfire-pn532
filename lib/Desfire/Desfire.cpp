@@ -32,7 +32,11 @@
  */
 
 #include "Desfire.h"
-#include "Secrets.h"
+
+
+#ifndef CARD_KEY_VERSION
+#define CARD_KEY_VERSION 0x00  // default
+#endif
 
 Desfire::Desfire() 
     : mi_CmacBuffer(mu8_CmacBuffer_Data, sizeof(mu8_CmacBuffer_Data))

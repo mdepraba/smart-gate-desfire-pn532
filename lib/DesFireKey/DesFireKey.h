@@ -12,7 +12,7 @@
 #ifndef DESFIRE_KEY_H
 #define DESFIRE_KEY_H
 
-#include "Buffer.h"
+#include <Buffer.h>
 
 enum DESFireCipher
 {

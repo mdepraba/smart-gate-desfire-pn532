@@ -12,7 +12,7 @@
 **************************************************************************/
 
 #include "Classic.h"
-#include "Buffer.h"
+#include <Buffer.h>
 
 /**************************************************************************
     Prints 1 kB of the card's EEPROM memory to the Serial output.

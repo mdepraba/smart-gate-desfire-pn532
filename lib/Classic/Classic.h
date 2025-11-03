@@ -2,7 +2,7 @@
 #ifndef CLASSIC_H
 #define CLASSIC_H
 
-#include "PN532.h"
+#include <PN532.h>
 
 // ---------------------------------------------------------------
 

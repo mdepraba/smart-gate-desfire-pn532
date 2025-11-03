@@ -2,7 +2,7 @@
 #ifndef ADAFRUIT_PN532_H
 #define ADAFRUIT_PN532_H
 
-#include "Utils.h"
+#include <Utils.h>
 
 // ----------------------------------------------------------------------
 

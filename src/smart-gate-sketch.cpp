@@ -1,15 +1,10 @@
 #include <Arduino.h>
-#include "PN532.h"
-#include "Desfire.h"
+#include <PN532.h>
+#include <Desfire.h>
+#include <Buffer.h>
+#include <Utils.h>
 #include "Secrets.h"
-#include "Buffer.h"
-#include "Utils.h"
-
-// ================== CONFIG ====================
-#define PN532_SS   5
-#define PN532_RST  21
-#define LED_PIN    2
-#define USE_AES    true   // true = AES, false = 3DES
+#include "Config.h"
 // ==============================================
 
 Desfire gi_PN532;
