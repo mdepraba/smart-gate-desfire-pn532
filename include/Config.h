@@ -19,5 +19,10 @@ const char* password = "yakaligaarka2.4G";
 
 // MQTT Credentials
 const char* mqtt_server = "192.168.18.5";
+const uint16_t mqtt_port = 1883;
 const char* mqtt_user = "arkalit";
 const char* mqtt_pass = "arkamqtt";
+
+const char* topic_control = "/device/control";
+const char* topic_status = "/device/status";
+const char* topic_rfid = "/device/rfid";

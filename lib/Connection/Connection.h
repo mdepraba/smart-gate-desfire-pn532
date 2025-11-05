@@ -13,35 +13,35 @@ struct MqttTopics {
     const char* rfid;
 };
 
+struct MqttConfig {
+  const char* wifi_ssid;
+  const char* wifi_password;
+  const char* server;
+  uint16_t port;
+  const char* username;
+  const char* password;
+  MqttTopics topics;
+};
 
 class Connection {
 public:
-  Connection(char* ssid, char* password, 
-              char* mqtt_server, uint8_t mqtt_port, char* mqtt_user, char* mqtt_pass, 
-              MqttTopics topic,
-              Gate& gate);
+  Connection(MqttConfig mqttConfig, Gate& gate);
   void begin();
   void reconnect();
   void loop();
-  void publishStatus(uint16_t detectionThreshold, Gate& gate);
+  void publishStatus();
+  void publishRFID(const String& uid);
 
   void setMessageHandler(void (*handler)(const String&, const String&));
 
 private:
-    static Connection* instance;
+    static Connection* instancePtr;
     static void mqttCallback(char* topic, byte* payload, unsigned int length);
 
     WiFiClient wifiClient;
     PubSubClient client;
-    MqttTopics topic;
-    AutoMode autoMode;
-
-    char* ssid;
-    char* password;
-    char* mqtt_server;
-    uint8_t mqtt_port;
-    char* mqtt_user;
-    char* mqtt_pass;
+    MqttConfig mqttConfig;
+    Gate& gate;
 
     void onMessageReceived(const String& topic, const String& message);
     void (*messageHandler)(const String&, const String&) = nullptr;
