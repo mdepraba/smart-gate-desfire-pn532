@@ -1,5 +1,7 @@
 #include "Connection.h"
 
+Connection* Connection::instancePtr = nullptr;
+
 Connection::Connection(MqttConfig mqttConfig, Gate& gate)
   : client(wifiClient), mqttConfig(mqttConfig), gate(gate) {}
 

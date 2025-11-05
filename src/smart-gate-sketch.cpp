@@ -49,6 +49,7 @@ bool gb_InitReaderSuccess = false;
 
 #define DIST_THRESHOLD 10
 
+void handleMqttMessage(const String& topic, const String& message);
 
 // ===========================================================================
 void setup() {
