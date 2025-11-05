@@ -1,4 +1,3 @@
-
 #include "Connection.h"
 
 Connection::Connection(char* ssid, char* password, char* mqtt_server, uint8_t mqtt_port, char* mqtt_user, char* mqtt_pass, MqttTopics topic, Gate& gate)
@@ -36,7 +35,7 @@ void Connection::reconnect() {
 }
 
 void Connection::publishStatus(uint16_t detectionThreshold, Gate& gate) {
-  DynamicJsonDocument root(256);
+  JsonDocument root;
   JsonObject doc = root.to<JsonObject>();
   
   doc["online"] = true;
@@ -61,3 +60,26 @@ void Connection::publishStatus(uint16_t detectionThreshold, Gate& gate) {
 void Connection::loop() {
   client.loop();
 }
+
+void Connection::mqttCallback(char* topic, byte* payload, unsigned int length) {
+  Serial.printf("MQTT message received on topic: %c\n", topic);
+  if (instance) {
+    String message;
+    for (unsigned int i = 0; i < length; i++) {
+      message += (char)payload[i];
+    }
+    instance->onMessageReceived(String(topic), message);
+  }
+}
+
+void Connection::setMessageHandler(void (*handler)(const String&, const String&)) {
+  messageHandler = handler;
+}
+
+void Connection::onMessageReceived(const String& topic, const String& message) {
+  Serial.printf("Topic: %s, Message: %s\n", topic.c_str(), message.c_str());
+  if (messageHandler) {
+    messageHandler(topic, message);
+  }
+}
+

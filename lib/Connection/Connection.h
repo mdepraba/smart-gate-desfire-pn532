@@ -25,7 +25,7 @@ public:
   void loop();
   void publishStatus(uint16_t detectionThreshold, Gate& gate);
 
-  void setMessageHandler(void (*handler)(const char&, const char&));
+  void setMessageHandler(void (*handler)(const String&, const String&));
 
 private:
     static Connection* instance;
