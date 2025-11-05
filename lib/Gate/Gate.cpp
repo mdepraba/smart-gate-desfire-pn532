@@ -40,8 +40,6 @@ bool Gate::isObjectPassed(uint16_t threshold, uint16_t distance) {
   if (currentTime - m_lastMeasurementTime < m_measurementInterval) return false;
   m_lastMeasurementTime = currentTime;
 
-  uint16_t distance = getDistance();
-
   switch (m_state) {
     case NONE:
       if (distance <= threshold) {
@@ -73,18 +71,14 @@ bool Gate::isObjectPassed(uint16_t threshold, uint16_t distance) {
 
 
 GateState Gate::commandGate(GateState desiredState) {
-  m_gateState = desiredState;
-
   if (desiredState == OPEN && m_gateState == CLOSED) {
     servoMotor.write(90); // Open gate
     m_gateState = OPEN;
     Serial.println("Gate Opened");
-    return m_gateState;
   } else if (desiredState == CLOSED && m_gateState == OPEN) {
     servoMotor.write(0); // Close gate
     m_gateState = CLOSED;
     Serial.println("Gate Closed");
-    return m_gateState;
   }
   return m_gateState; // No state change
 }

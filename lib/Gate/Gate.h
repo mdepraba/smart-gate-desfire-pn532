@@ -26,7 +26,7 @@ public:
     void begin();
     uint16_t getDistance();
     bool isObjectPassed(uint16_t threshold, uint16_t distance);
-    GateState commandGate(GateState state) { m_gateState = state; }
+    GateState commandGate(GateState state);
     void disableUltrasonic();
     void enableUltrasonic();
     void setMode(AutoMode mode);
