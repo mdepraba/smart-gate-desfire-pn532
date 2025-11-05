@@ -1,14 +1,15 @@
 #include "Gate.h"
 
-Gate::Gate(uint8_t trigPin, uint8_t echoPin, uint8_t servoPin)
-    : m_trigPin(trigPin), m_echoPin(echoPin), m_servoPin(servoPin),
-      m_lastMeasurementTime(0), m_lastStateChange(0),
-      m_state(NONE), m_autoMode(AUTO) {}
-      
-void Gate::begin() {
-  servoMotor.attach(m_servoPin);
-  pinMode(m_trigPin, OUTPUT);
-  pinMode(m_echoPin, INPUT);
+Gate::Gate()
+    : m_lastMeasurementTime(0), m_lastStateChange(0),
+      m_state(NONE), m_autoMode(AUTO) {
+        m_lastMeasurementTime = 0;
+      }
+
+void Gate::begin(uint8_t trigPin, uint8_t echoPin, uint8_t servoPin) {
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  servoMotor.attach(servoPin);
 
   servoMotor.write(0);
 }
@@ -35,14 +36,14 @@ uint16_t Gate::getDistance() {
   return distance;
 }
 
-bool Gate::isObjectPassed(uint16_t threshold, uint16_t distance) {
+bool Gate::isObjectPassed(uint16_t distance) {
   uint32_t currentTime = millis();
   if (currentTime - m_lastMeasurementTime < m_measurementInterval) return false;
   m_lastMeasurementTime = currentTime;
 
   switch (m_state) {
     case NONE:
-      if (distance <= threshold) {
+      if (distance <= m_threshold) {
         m_state = PRESENT;
         m_lastStateChange = currentTime;
         Serial.println("Object Detected");
@@ -50,7 +51,7 @@ bool Gate::isObjectPassed(uint16_t threshold, uint16_t distance) {
       break;
 
     case PRESENT:
-      if (distance > threshold) {
+      if (distance > m_threshold) {
         m_state = PASSED;
         m_lastStateChange = currentTime;
         Serial.println("Object Passed");
@@ -104,4 +105,8 @@ void Gate::setMode(AutoMode mode) {
   m_autoMode = mode;
   if (mode == AUTO) enableUltrasonic();
   else disableUltrasonic();
+}
+
+void Gate::setThreshold(uint16_t threshold) {
+  m_threshold = threshold;
 }
