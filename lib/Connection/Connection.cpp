@@ -1,9 +1,10 @@
 #include "Connection.h"
+#include "cert.h"
 
 Connection* Connection::instancePtr = nullptr;
 
 Connection::Connection(MqttConfig mqttConfig, Gate& gate)
-  : client(wifiClient), mqttConfig(mqttConfig), gate(gate) {}
+  : mqttConfig(mqttConfig), gate(gate) {}
 
 void Connection::begin() {
   WiFi.begin(mqttConfig.wifi_ssid, mqttConfig.wifi_password);
@@ -12,8 +13,19 @@ void Connection::begin() {
     Serial.println("Connecting to WiFi...");
   }
   Serial.println("Connected to WiFi");
+
+  if (mqttConfig.port == 8883) {
+    Serial.println("Configuring secure MQTT connection...");
+    wifiClientTLS.setCACert(root_ca);
+    client.setClient(wifiClientTLS);
+  } else {
+    Serial.println("Using plain MQTT connection...");
+    client.setClient(wifiClient);
+  }
   client.setServer(mqttConfig.server, mqttConfig.port);
   client.setCallback(Connection::mqttCallback);
+  reconnect();
+  publishStatus();
 }
 
 void Connection::reconnect() {
@@ -59,6 +71,9 @@ void Connection::publishStatus() {
 }
 
 void Connection::loop() {
+  if (!client.connected()) {
+    reconnect();
+  }
   client.loop();
 }
 

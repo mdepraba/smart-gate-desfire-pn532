@@ -3,6 +3,8 @@
 
 #include <Arduino.h>
 #include <WiFi.h>
+#include <WiFiClient.h>
+#include <WiFiClientSecure.h>
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 #include <Gate.h>
@@ -38,7 +40,8 @@ private:
     static Connection* instancePtr;
     static void mqttCallback(char* topic, byte* payload, unsigned int length);
 
-    WiFiClient wifiClient;
+    WiFiClient  wifiClient;
+    WiFiClientSecure  wifiClientTLS;
     PubSubClient client;
     MqttConfig mqttConfig;
     Gate& gate;

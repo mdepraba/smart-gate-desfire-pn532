@@ -1,6 +1,4 @@
 #include <Arduino.h>
-#include <WiFi.h>
-#include <PubSubClient.h>
 #include <ESP32Servo.h>
 #include <ArduinoJson.h>
 #include <PN532.h>
@@ -68,10 +66,10 @@ void setup() {
 }
 
 void loop() {
-  if (!gb_InitReaderSuccess) {
-    // InitReader();
-    return;
-  }
+  // if (!gb_InitReaderSuccess) {
+  //   InitReader();
+  //   return;
+  // }
   conn.reconnect();
   conn.loop();
 
@@ -82,6 +80,8 @@ void loop() {
     }
   }
 
+  conn.publishStatus();
+  delay(1000);
 }
 // ===========================================================================
 
