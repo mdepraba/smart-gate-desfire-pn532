@@ -35,6 +35,7 @@ public:
   void publishRFID(const String& uid);
 
   void setMessageHandler(void (*handler)(const String&, const String&));
+  bool isConnected() { return client.connected(); };
 
 private:
     static Connection* instancePtr;
