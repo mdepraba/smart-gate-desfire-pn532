@@ -3,6 +3,7 @@
 #include <ArduinoJson.h>
 #include <PN532.h>
 #include <Desfire.h>
+#include <DesfireService.h>
 #include <Buffer.h>
 #include <Utils.h>
 #include <Gate.h>
@@ -38,14 +39,16 @@ MqttConfig mqttConfig = {
   }
 };
 
-Desfire gi_PN532;
+// Desfire nfc;
+DesfireService nfc(SECRET_PICC_MASTER_KEY, CARD_KEY_VERSION);
 Gate gate;
 Connection conn(mqttConfig, gate);
 
-uint64_t   gu64_LastID       = 0; 
-bool gb_InitReaderSuccess = false;
-
+uint64_t  gu64_LastID       = 0; 
+bool      cardAuthenticated = false;
 #define DIST_THRESHOLD 10
+
+#define LED_PIN 2
 
 void handleMqttMessage(const String& topic, const String& message);
 
@@ -53,25 +56,26 @@ void handleMqttMessage(const String& topic, const String& message);
 void setup() {
   Serial.begin(115200);
   delay(1000);
-  Serial.println("\n=== Smart Gate System ===");
-
-  gi_PN532.InitHardwareSPI(PN532_SS, PN532_RST);
-  // InitReader();
+  Serial.println("\n========== Smart Gate System ==========");
+  
+  nfc.begin(PN532_SS, PN532_RST);
   gate.begin(TRIG_PIN, ECHO_PIN, SERVO_PIN);
   gate.setMode(AUTO);
   conn.begin();
   conn.setMessageHandler(handleMqttMessage);
 
-  Serial.println("Gate system initialized");
+  Serial.println("[OK] Gate system initialized");
 }
 
 void loop() {
-  // if (!gb_InitReaderSuccess) {
-  //   InitReader();
-  //   return;
-  // }
-  conn.reconnect();
+  if(!conn.isConnected()) {
+    conn.reconnect();
+  }
   conn.loop();
+
+  byte uid[8] = {0};
+  byte uidLength = 0;
+  eCardType cardType;
 
   if (gate.getMode() == AUTO) {
     uint16_t dist = gate.getDistance();
@@ -80,6 +84,13 @@ void loop() {
     }
   }
 
+  if (!nfc.desfireReader.ReadPassiveTargetID(uid, &uidLength, &cardType)) return;
+  if (uidLength == 0) return;
+
+  nfc.authenticatePiccMaster();
+  nfc.authenticateApp(CARD_APPLICATION_ID);
+  nfc.readDesfireFile(CARD_FILE_ID, 32, READ_ACCESS_INDEX, SECRET_FILE_READ_ACCESS);
+  
   conn.publishStatus();
   delay(1000);
 }
@@ -91,7 +102,7 @@ void handleMqttMessage(const String& topic, const String& message) {
   // Serial.println(message);
   JsonDocument doc;
   if (deserializeJson(doc, message)) {
-    Serial.println("Invalid JSON");
+    Serial.println("[ERROR] Invalid JSON");
     return;
   }
 
