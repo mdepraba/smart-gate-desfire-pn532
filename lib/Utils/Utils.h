@@ -193,6 +193,16 @@ public:
         delay(500);
         digitalWrite(u8_Pin, !u8_Status);
     }
+    
+    static inline void BlinkErrorLed(byte u8_Pin, byte u8_Status)
+    {
+        for (int i = 0; i < 3; i++) {
+            digitalWrite(u8_Pin, HIGH);
+            delay(100);
+            digitalWrite(u8_Pin, LOW);
+            delay(100);
+        }
+    }
 
     // reads the current state of a digital processor pin.
     // returns HIGH or LOW

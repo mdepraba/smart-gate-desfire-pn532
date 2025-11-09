@@ -28,6 +28,9 @@ const byte SECRET_APPLICATION_KEY[24] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x
 // The purpose is that each card will have it's unique store value that can be calculated from known values.
 const byte SECRET_STORE_VALUE_KEY[24] = { 0x1E, 0x5D, 0x78, 0x57, 0x68, 0xFC, 0xEE, 0xC9, 0x40, 0xEC, 0x30, 0xDE, 0xEC, 0xA9, 0x8B, 0x3C, 0x7F, 0x8A, 0xC9, 0xC3, 0xAA, 0xD7, 0x4F, 0x17 };
 
+
+const uint8_t READ_ACCESS_INDEX = 3;
+const byte SECRET_FILE_READ_ACCESS[16] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 // -----------------------------------------------------------------------------------------------------------
 
 // The ID of the application to be created
@@ -37,7 +40,7 @@ const uint32_t CARD_APPLICATION_ID = 0xA1A2A3;
 
 // The ID of the file to be created in the above application
 // This value must be between 0 and 31
-const byte CARD_FILE_ID = 2;
+const byte CARD_FILE_ID = 4;
 
 // This 8 bit version number is uploaded to the card together with the key itself.
 // This version is irrelevant for encryption. 
