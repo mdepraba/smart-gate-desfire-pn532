@@ -7,12 +7,14 @@ Connection::Connection(MqttConfig mqttConfig, Gate& gate)
   : mqttConfig(mqttConfig), gate(gate) {}
 
 void Connection::begin() {
+  instancePtr = this;
   WiFi.begin(mqttConfig.wifi_ssid, mqttConfig.wifi_password);
+  Serial.print("Connecting to WiFi...");
   while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
     delay(1000);
-    Serial.println("Connecting to WiFi...");
   }
-  Serial.println("Connected to WiFi");
+  Serial.println("\n Connected to WiFi");
 
   if (mqttConfig.port == 8883) {
     Serial.println("Configuring secure MQTT connection...");
@@ -79,11 +81,16 @@ void Connection::loop() {
 
 void Connection::mqttCallback(char* topic, byte* payload, unsigned int length) {
   Serial.printf("MQTT message received on topic: %c\n", topic);
+  String message;
+  for (unsigned int i = 0; i < length; i++) {
+    message += (char)payload[i];
+  }
+
+  // Logging
+  Serial.printf("MQTT message received on topic: %s\n", topic);
+  Serial.printf("Payload: %s\n", message.c_str());
+
   if (instancePtr) {
-    String message;
-    for (unsigned int i = 0; i < length; i++) {
-      message += (char)payload[i];
-    }
     instancePtr->onMessageReceived(String(topic), message);
   }
 }
@@ -103,7 +110,7 @@ void Connection::publishRFID(const String& pid) {
   JsonDocument root;
   JsonObject doc = root.to<JsonObject>();
   
-  doc["uid"] = pid;
+  doc["pid"] = pid;
   doc["timestamp"] = millis();
 
   char jsonBuffer[100];

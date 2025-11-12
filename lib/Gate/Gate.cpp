@@ -16,7 +16,7 @@ void Gate::begin(uint8_t trigPin, uint8_t echoPin, uint8_t servoPin) {
 
 uint16_t Gate::getDistance() {
   if(m_autoMode == MANUAL) {
-    return 0; 
+    return 999; 
   }
 
   digitalWrite(m_trigPin, LOW);
@@ -30,7 +30,7 @@ uint16_t Gate::getDistance() {
 
   if (duration == 0) {
     Serial.println("Ultrasonic sensor error");
-    return 0;   // error reading
+    return 999;   // error reading
   }
 
   return distance;

@@ -39,16 +39,16 @@ MqttConfig mqttConfig = {
   }
 };
 
-// Desfire nfc;
 DesfireService nfc(SECRET_PICC_MASTER_KEY, CARD_KEY_VERSION);
 Gate gate;
 Connection conn(mqttConfig, gate);
 
-uint64_t  gu64_LastID       = 0; 
-bool      cardAuthenticated = false;
 #define DIST_THRESHOLD 10
 
 #define LED_PIN 2
+#define PublishStatusInterval 5000
+
+uint32_t lastStatusPublish = 0;
 
 void handleMqttMessage(const String& topic, const String& message);
 
@@ -84,12 +84,18 @@ void loop() {
     }
   }
 
+  if (millis() - lastStatusPublish > PublishStatusInterval) {
+    conn.publishStatus();
+    lastStatusPublish = millis();
+  }
+
   if (!nfc.desfireReader.ReadPassiveTargetID(uid, &uidLength, &cardType)) return;
   if (uidLength == 0) return;
 
   nfc.authenticatePiccMaster();
   nfc.authenticateApp(CARD_APPLICATION_ID);
-  nfc.readDesfireFile(CARD_FILE_ID, 32, READ_ACCESS_INDEX, SECRET_FILE_READ_ACCESS);
+  String pid = nfc.readDesfireFile(CARD_FILE_ID, 32, READ_ACCESS_INDEX, SECRET_FILE_READ_ACCESS);
+  conn.publishRFID(pid);
   
   conn.publishStatus();
   delay(1000);
@@ -98,34 +104,36 @@ void loop() {
 
 void handleMqttMessage(const String& topic, const String& message) {
   Serial.printf("Received message on topic: %s\n", topic.c_str());
-  // Serial.print("Message: ");
-  // Serial.println(message);
   JsonDocument doc;
   if (deserializeJson(doc, message)) {
     Serial.println("[ERROR] Invalid JSON");
     return;
   }
 
-  if (topic == mqttConfig.topics.control) {
-    if (doc.containsKey("servo")) {
-      uint8_t command = doc["servo"];
-      gate.commandGate(command == 1 ? OPEN : CLOSED);
-      Serial.println(command == 1 ? "Gate opened via MQTT" : "Gate closed via MQTT");
+  String topicCopy = topic;
+  topicCopy.trim();
+  
+  if (topic.endsWith(mqttConfig.topics.control)) {
+    Serial.println("Processing control command...");
+    if (doc["servo"].is<const char*>()) {
+      String command = doc["servo"];
+      gate.commandGate(command == "open" ? OPEN : CLOSED);
+      Serial.println(command == "open" ? "Gate opened via MQTT" : "Gate closed via MQTT");
       conn.publishStatus();
     }
-    if (doc.containsKey("auto_mode")) {
+    if (doc["auto_mode"].is<const char*>()) {
       String mode = doc["auto_mode"];
       gate.setMode(mode == "manual" ? MANUAL : AUTO);
       Serial.println(mode == "manual" ? "Set to MANUAL mode via MQTT" : "Set to AUTO mode via MQTT");
       conn.publishStatus();
     }
-    if (doc.containsKey("threshold")) {
+    if (doc["threshold"].is<uint16_t>()) {
       uint16_t newThreshold = doc["threshold"];
       gate.setThreshold(newThreshold);
       Serial.printf("Threshold updated to %d cm\n", newThreshold);
       conn.publishStatus();
     }
-    if (doc.containsKey("access_granted")) {
+    if (doc["access_granted"].is<bool>()) {
       bool accessGranted = doc["access_granted"];
       if (accessGranted) {
         Serial.println("Access granted via MQTT");
@@ -135,7 +143,7 @@ void handleMqttMessage(const String& topic, const String& message) {
         Serial.println("Access denied via MQTT");
       }
     }
-    if (doc.containsKey("ping")) {
+    if (doc["ping"].is<bool>()) {
       Serial.println("Ping received, publishing status");
       conn.publishStatus();
     }

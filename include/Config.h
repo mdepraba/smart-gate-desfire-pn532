@@ -14,14 +14,16 @@
 #define ECHO_PIN   17
 
 // Wi-Fi Credentials
-const char* ssid = "LIT-2.4G-CSSU";
-const char* password = "yakaligaarka2.4G";
+// const char* ssid = "frazerion";
+// const char* password = "youshallnotpass";
+const char* ssid = "sastra wifi";
+const char* password = "password";
 
 // MQTT Credentials
-const char* mqtt_server = "192.168.18.5";
-const uint16_t mqtt_port = 1883;
-const char* mqtt_user = "arkalit";
-const char* mqtt_pass = "arkamqtt";
+const char* mqtt_server = "48361d6ebd2a41fc9ea321dc602a27d2.s1.eu.hivemq.cloud";
+const uint16_t mqtt_port = 8883;
+const char* mqtt_user = "frazerion";
+const char* mqtt_pass = "Frazmqtt00";
 
 const char* topic_control = "/device/control";
 const char* topic_status = "/device/status";
